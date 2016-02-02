@@ -1,0 +1,18 @@
+% 1. Title: Yijing's makeup dataset
+% 
+% 2. Sources:
+%      (a) Creator: Yijing Bai
+%      (c) Date: 1/24/2016
+% 
+@RELATION Graduate-School-Admission
+
+@ATTRIBUTE GPA  NUMERIC
+@ATTRIBUTE GRE   NUMERIC
+@ATTRIBUTE TOFEL  NUMERIC
+@ATTRIBUTE Award  NUMERIC
+@ATTRIBUTE Paper  NUMERIC
+@ATTRIBUTE WorkExperience  NUMERIC
+@ATTRIBUTE RecommandationLetter  NUMERIC
+@ATTRIBUTE ClassRank  NUMERIC
+@ATTRIBUTE ExtracurricularActivities        {Iris-setosa,Iris-versicolor,Iris-virginica}
+@ATTRIBUTE Essay        {Very-Strong,Strong,Fair,Weak,Very-Weak}

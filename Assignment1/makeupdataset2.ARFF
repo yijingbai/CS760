@@ -1,0 +1,48 @@
+% 1. Title: Yijing's Makeup Dataset
+% 
+% 2. Sources:
+%      (a) Creator: Yijing Bai
+%      (b) 1/24/2016
+% 
+@RELATION Will_User_like_company
+
+@ATTRIBUTE Name   string
+@ATTRIBUTE Size   NUMERIC
+@ATTRIBUTE Average_Salary  NUMERIC
+@ATTRIBUTE Paid_Holidays  NUMERIC
+@ATTRIBUTE Working_Hours_Per_Week  NUMERIC
+@ATTRIBUTE Health_Insurance   {YES,NO}
+@ATTRIBUTE Dental_Insurance   {YES,NO}
+@ATTRIBUTE Retirement_Plan   {YES,NO}
+@ATTRIBUTE Work_From_Home   {YES,NO}
+@ATTRIBUTE Free_lunch_snacks   {YES,NO}
+@ATTRIBUTE Interview        {Hard,Average,Easy}
+@ATTRIBUTE Work_Life_Balance   {Good,Average,Bad}
+@ATTRIBUTE Culture        {Open, Average, Regid}
+@ATTRIBUTE Colleage        {Smart,Average}
+@ATTRIBUTE Stock_options   {Good,Average,Bad}
+@ATTRIBUTE Like        {YES, FAIR, NO}
+
+@DATA
+'Google',10000,127149,10,40,YES,YES,YES,YES,YES,Hard,Good,Open,Smart,Good,YES
+'Walmart',10000,46482,5,40,YES,YES,YES,NO,NO,Average,Average,Average,Average,Average,FAIR
+'HomeAway',2500,89606,28,40,YES,YES,YES,YES,NO,Average,Average,Average,Average,Average,YES
+'Wells Fargo',10000,37655,18,40,YES,YES,YES,NO,NO,Average,Average,Regid,Average,Good,FAIR
+'AT&T',10000,39193,15,40,YES,YES,YES,NO,NO,Average,Average,Average,Average,Bad,FAIR
+'VMware',10000,112118,20,40,YES,YES,YES,YES,YES,Average,Good,Open,Smart,Good,YES
+'PSAV',3000,54798,25,40,YES,YES,YES,NO,NO,Average,Good,Average,Average,Bad,FAIR
+'Southwest Airlines',10000,69120,30,40,YES,YES,NO,NO,NO,Average,Average,Average,Average,Good,YES
+'Kohls',10000,53756,18,40,YES,YES,YES,NO,NO,Easy,Average,Average,Average,Average,FAIR
+'Milwaukee Tool',1200,64704,12,40,YES,YES,NO,NO,NO,Average,Average,Average,Average,Bad,FAIR
+'Cleveland Clinic',10000,59966,15,40,YES,YES,YES,NO,NO,Average,Average,Regid,Average,Bad,FAIR
+'godaddy',6000,109343,15,40,YES,YES,YES,NO,YES,Average,Average,Average,Average,Average,FAIR
+'Verizon',10000,33305,15,40,YES,YES,YES,NO,YES,Average,Average,Average,Average,Bad,FAIR
+'Chegg',600,128534,30,40,YES,YES,YES,YES,YES,Average,Average,Open,Average,Average,YES
+'USAA',10000,53448,30,40,YES,YES,YES,YES,NO,Average,Average,Average,Average,Average,FAIR
+'Intuit',7000,123106,21,40,YES,YES,YES,YES,YES,Average,Average,Average,Average,Good,YES
+'Zillow',1100,98033,30,40,YES,YES,YES,NO,YES,Average,Good,Open,Average,Good,YES
+'Facebook',8000,125216,20,40,YES,YES,YES,YES,YES,Average,Good,Open,Smart,Good,YES
+'Uber',4500,115350,20,40,YES,YES,YES,YES,YES,Average,Good,Open,Smart,Good,YES
+'UberPrints',100,19200,10,40,YES,NO,NO,NO,YES,Average,Average,Average,Average,Bad,NO
+'Airbnb',3000,131698,20,40,YES,YES,YES,YES,YES,Average,Good,Open,Smart,Good,YES
+
