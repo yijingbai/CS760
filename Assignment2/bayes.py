@@ -50,53 +50,69 @@ def naive_bayes(train_file, test_file):
 
     condP = {}
 
-    # estimate P(Xi = x | Y = y) for each Xi
-    # for i in range(0, class_index):
-    #     attr = attribute_list[i]
-    #     if attr not in condP:
-    #         condP[attr] = {}
-    #
-    #     for value in value_list[i]:
-    #         if attr not in condP[attr]:
-    #             condP[attr][value] = {}
-    #         y_count = 0
-    #         attr_count = 0
-    #         for y in value_list[class_index]:
-    #             for data in dataset:
-    #                 if data[class_index] == y:
-    #                     y_count += 1
-    #                 if data[class_index] == y and data[i] == value:
-    #                     attr_count += 1
-    #             condP[attr][value][y] = float(attr_count) / y_count
-    #             y_count = 0
-    #             attr_count = 0
-
     # estimate functon two
+    class_count = {}
+    for data in dataset:
+        class_value = data[class_index]
+        if class_value not in class_count:
+            class_count[class_value] = 0
+        class_count[class_value] += 1
+        for (attr_index, value) in enumerate(data):
+            if attr_index < class_index:
+                attr = attribute_list[attr_index]
+                if attr not in condP:
+                    condP[attr] = {}
+                if value not in condP[attr]:
+                    condP[attr][value] = {}
+                if class_value not in condP[attr][value]:
+                    condP[attr][value][class_value] = 0
+                condP[attr][value][class_value] += 1
 
-    # print condP
+    for (attr, value) in condP.items():
+        for (v, cla) in value.items():
+            for clas in cla.keys():
+                condP[attr][v][clas] /= float(class_count[clas])
 
+    for (attr, value) in condP.items():
+        print(attr + ": ")
+        for (v, cla) in value.items():
+            print("    " + v + ": ")
+            for clas in cla.keys():
+                print("        " + clas + ": " + str(condP[attr][v][clas]))
+
+    print(P)
     # classification
     is_data_line = False
     with open(test_file) as test:
         for line in test:
             if is_data_line:
                 data = line.strip().split(',')
+                print(data)
                 max_possbility = 0.0
-
-                num = P[y]
                 dom = 0.0
                 predict = ""
                 for y in value_list[class_index]:
+                    print("y is " + y)
+                    print("P[y] is " + str(P[y]))
+                    num = P[y]
+
                     for (i, attr) in enumerate(attribute_list):
+                        print("attr: " + attr + "  at index: " + str(i))
                         if i != class_index:
-                            num *= condP[attr][data[i]][y]
+                            print("    " + " * " + "P(" + attr + "|" +
+                                  data[i] + ")")
+                            try:
+                                num *= condP[attr][data[i]][y]
+                            except:
+                                num *= 0.0
+                            print("nums is " + str(num))
 
                     if num > max_possbility:
                         max_possbility = num
                         predict = y
 
                     dom += num
-                    num = P[y]
+                    print("Dom is " + str(dom))
 
                 prob = max_possbility / dom
                 print(predict + " " + data[class_index] + str(prob))

@@ -24,4 +24,6 @@
 @data
 arched,yes,no,no,no,no,no,yes,1,4,round,lac_central,lacunar,stripped,vesicles,yes,yes,5,malign_lymph
 arched,yes,yes,no,no,yes,no,no,1,2,round,lacunar,lac_margin,drop_like,chalices,no,no,1,metastases
-arched,yes,no,no,yes,yes,no,no,1,3,round,lac_central,lac_margin,coarse,vesicles,no,no,1,metastases
+normal,yes,no,no,yes,yes,no,no,1,3,round,lac_central,lac_margin,coarse,vesicles,no,no,1,metastases
+normal,no,no,no,yes,yes,no,no,1,3,round,lac_central,lac_margin,coarse,vesicles,no,no,1,metastases
+normal,yes,no,no,yes,yes,no,no,1,3,round,lac_central,lac_margin,coarse,vesicles,no,no,1,metastases
