@@ -1,22 +1,15 @@
 """The sys module."""
 import sys
 import re
+from decimal import Decimal
+import math
 
-
-def tan(train_file, test_file):
-    """Tan."""
-    return 0
-
-
-def naive_bayes(train_file, test_file):
-    """naive_bayes."""
+def parse_file(input_file):
     attribute_list = []
     value_list = []
     dataset = []
     is_data_line = False
-    P = {}
-
-    with open(train_file) as train:
+    with open(input_file) as train:
         for line in train:
             if is_data_line:
                 data = line.strip().split(',')
@@ -29,8 +22,78 @@ def naive_bayes(train_file, test_file):
                              result.group(2).strip().split(','))
                 value_list.append(values)
             elif re.search("@data", line):
-                print(attribute_list)
                 is_data_line = True
+    return (attribute_list, value_list, dataset)
+
+
+def tan(train_file, test_file):
+    """Tan."""
+    attribute_list, value_list, dataset = parse_file(train_file)
+    y_index = len(attribute_list) - 1
+    data_size = len(dataset)
+
+    def join_p(i, j, x_i, x_j, y):
+        sum_num = sum([1 for data in dataset if data[i] == x_i and data[j] == x_j and data[y_index] == y])
+        res = float(sum_num + 1) / (data_size + (len(value_list[i]) * len(value_list[j]) * len(value_list[y_index])))
+        return res
+
+    def cond_p(i, x_i, y):
+        sum_num = sum([1 for data in dataset if data[i] == x_i and data[y_index] == y])
+        res = float(sum_num + 1) / (sum([1 for data in dataset if data[y_index] == y]) + len(value_list[i]))
+        return res
+
+    def join_cond_p(i, j, x_i, x_j, y):
+        sum_num = sum([1 for data in dataset if data[i] == x_i and data[j] == x_j and data[y_index] == y])
+        res = float(sum_num + 1) / (sum([1 for data in dataset if data[y_index] == y]) + len(value_list[i]) * len(value_list[j]))
+        return res
+
+    def compute_single_mutual_info(attr_i, attr_j, attr_y):
+        res = 0
+        for v_i in value_list[attr_i]:
+            for v_j in value_list[attr_j]:
+                for v_y in value_list[attr_y]:
+                    res += join_p(attr_i, attr_j, v_i, v_j, v_y) * math.log(join_cond_p(attr_i, attr_j, v_i, v_j, v_y) / (cond_p(attr_i, v_i, v_y) * cond_p(attr_j, v_j, v_y)), 2)
+        return res
+
+    compute_single_mutual_info(0, 1, y_index)
+
+    edges = [[-1.0 for col in range(0, len(attribute_list) - 1)] for row in range(0, len(attribute_list) - 1)]
+    def compute_all_mutual_info():
+        for (i, attr_row) in enumerate(attribute_list):
+            for (j, attr_col) in enumerate(attribute_list):
+                if i == j or i == y_index or j == y_index:
+                    continue
+                edges[i][j] = compute_single_mutual_info(i, j, y_index)
+
+    compute_all_mutual_info()
+
+    vertices = [i for i in range(0, len(attribute_list) - 1)]
+
+    def prim():
+        v_new = [0]
+        edges_new = []
+        while True:
+            info, v_1, v_2 = max([(edges[v_1][v_2], v_1, v_2) for v_1 in v_new for v_2 in range(0, len(attribute_list) - 1) if v_2 not in v_new])
+            v_new.append(v_2)
+            edges_new.append((v_2, v_1))
+            if len(v_new) == len(vertices):
+                break
+        return (v_new, edges_new)
+
+    v_new, edges_new = prim()
+    print edges_new
+
+
+
+    return 0
+
+
+def naive_bayes(train_file, test_file):
+    """naive_bayes."""
+    is_data_line = False
+    P = {}
+
+    attribute_list, value_list, dataset = parse_file(train_file)
 
     # estimate P(Y = y)
     class_index = len(attribute_list) - 1
@@ -44,9 +107,7 @@ def naive_bayes(train_file, test_file):
 
     total_data = len(dataset)
     for (v, count) in counts.items():
-        P[v] = float(count) / total_data
-    # print counts
-    # print P
+        P[v] = float(count + 1) / (total_data + len(value_list[class_index]))
 
     condP = {}
 
@@ -68,58 +129,40 @@ def naive_bayes(train_file, test_file):
                     condP[attr][value][class_value] = 0
                 condP[attr][value][class_value] += 1
 
-    for (attr, value) in condP.items():
-        for (v, cla) in value.items():
-            for clas in cla.keys():
-                condP[attr][v][clas] /= float(class_count[clas])
+    for (i, attr) in enumerate(attribute_list):
+        if i < class_index:
+            for value in value_list[i]:
+                if value not in condP[attr]:
+                    condP[attr][value] = {}
+                for class_value in value_list[class_index]:
+                    if class_value not in condP[attr][value]:
+                        condP[attr][value][class_value] = float(1) / (len(value_list[i]) + class_count[class_value])
+                    else:
+                        condP[attr][value][class_value] = float(condP[attr][value][class_value] + 1) / (len(value_list[i]) + class_count[class_value])
 
-    for (attr, value) in condP.items():
-        print(attr + ": ")
-        for (v, cla) in value.items():
-            print("    " + v + ": ")
-            for clas in cla.keys():
-                print("        " + clas + ": " + str(condP[attr][v][clas]))
-
-    print(P)
     # classification
-    is_data_line = False
-    with open(test_file) as test:
-        for line in test:
-            if is_data_line:
-                data = line.strip().split(',')
-                print(data)
-                max_possbility = 0.0
-                dom = 0.0
-                predict = ""
-                for y in value_list[class_index]:
-                    print("y is " + y)
-                    print("P[y] is " + str(P[y]))
-                    num = P[y]
+    res = parse_file(test_file)
+    test_data_set = res[2]
 
-                    for (i, attr) in enumerate(attribute_list):
-                        print("attr: " + attr + "  at index: " + str(i))
-                        if i != class_index:
-                            print("    " + " * " + "P(" + attr + "|" +
-                                  data[i] + ")")
-                            try:
-                                num *= condP[attr][data[i]][y]
-                            except:
-                                num *= 0.0
-                            print("nums is " + str(num))
+    for data in test_data_set:
+        max_possbility = 0.0
+        dom = 0.0
+        predict = ""
+        for y in value_list[class_index]:
+            num = P[y]
 
-                    if num > max_possbility:
-                        max_possbility = num
-                        predict = y
+            for (i, attr) in enumerate(attribute_list):
+                if i != class_index:
+                    num *= condP[attr][data[i]][y]
 
-                    dom += num
-                    print("Dom is " + str(dom))
+            if num > max_possbility:
+                max_possbility = num
+                predict = y
 
-                prob = max_possbility / dom
-                print(predict + " " + data[class_index] + str(prob))
+            dom += num
 
-            if re.search("@data", line):
-                is_data_line = True
-
+        prob = (max_possbility) / (dom)
+        print(predict + " " + data[class_index] + " %.16f" % Decimal(prob))
     return 0
 
 
@@ -132,10 +175,6 @@ if __name__ == "__main__":
     train_file = sys.argv[1]
     test_file = sys.argv[2]
     mode = sys.argv[3]
-
-    print("train_file is " + train_file)
-    print("test_file is " + test_file)
-    print("mode is " + mode)
 
     if mode == 'n':
         naive_bayes(train_file, test_file)

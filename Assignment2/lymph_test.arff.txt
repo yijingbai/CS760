@@ -1,5 +1,5 @@
 %    This lymphography domain was obtained from the University Medical Centre,
-%    Institute of Oncology, Ljubljana, Yugoslavia.  Thanks go to M. Zwitter and 
+%    Institute of Oncology, Ljubljana, Yugoslavia.  Thanks go to M. Zwitter and
 %    M. Soklic for providing the data.
 @relation lymphography
 @attribute 'lymphatics' { normal, arched, deformed, displaced}
