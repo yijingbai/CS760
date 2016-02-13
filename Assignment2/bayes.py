@@ -3,6 +3,7 @@ import sys
 import re
 from decimal import Decimal
 import math
+import operator
 
 def parse_file(input_file):
     attribute_list = []
@@ -55,9 +56,8 @@ def tan(train_file, test_file):
                     res += join_p(attr_i, attr_j, v_i, v_j, v_y) * math.log(join_cond_p(attr_i, attr_j, v_i, v_j, v_y) / (cond_p(attr_i, v_i, v_y) * cond_p(attr_j, v_j, v_y)), 2)
         return res
 
-    compute_single_mutual_info(0, 1, y_index)
-
     edges = [[-1.0 for col in range(0, len(attribute_list) - 1)] for row in range(0, len(attribute_list) - 1)]
+
     def compute_all_mutual_info():
         for (i, attr_row) in enumerate(attribute_list):
             for (j, attr_col) in enumerate(attribute_list):
@@ -71,19 +71,48 @@ def tan(train_file, test_file):
 
     def prim():
         v_new = [0]
-        edges_new = []
+        edges_new = {}
         while True:
             info, v_1, v_2 = max([(edges[v_1][v_2], v_1, v_2) for v_1 in v_new for v_2 in range(0, len(attribute_list) - 1) if v_2 not in v_new])
             v_new.append(v_2)
-            edges_new.append((v_2, v_1))
+            edges_new[v_2] = [v_1]
             if len(v_new) == len(vertices):
                 break
         return (v_new, edges_new)
 
     v_new, edges_new = prim()
+    for k in range(0, len(attribute_list) - 1):
+        if k not in edges_new:
+            edges_new[k] = []
+        edges_new[k].append(y_index)
+
     print edges_new
 
+    def compute_multi_cond_p(i, attr, parents, p_values):
+        sum_num = sum([1 for data in dataset if data[i] == attr and reduce(operator.__and__, [True if data[p_i] == p_values[attr_i] else False for (attr_i, p_i) in enumerate(parents)])])
+        res = float(sum_num + 1) / (sum([1 for data in dataset if reduce(operator.__and__, [True if data[p_i] == p_values[attr_i] else False for (attr_i, p_i) in enumerate(parents)])]) + len(test_value_list[i]))
+        return res
+    #
+    # def calculate_p():
+    #     count_dict = {}
+    #     for data in dataset:
+    #
+    #     for v in value_list[y_index]:
+    #
 
+    test_attribute_list, test_value_list, test_dataset = parse_file(test_file)
+    for test_data in test_dataset:
+
+        for i in edges_new.keys():
+            p_values = []
+            print ("i is %d, attr name is %s, value is %s " % (i, test_value_list[i], test_data[i]))
+            for p in edges_new[i]:
+                print(test_value_list[p])
+                print(str(p) + " = " + test_data[p])
+                p_values.append(test_data[p])
+
+            print "%.18f" % compute_multi_cond_p(i, test_value_list[i], edges_new[i], p_values)
+        print("====================")
 
     return 0
 
