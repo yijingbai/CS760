@@ -92,27 +92,54 @@ def tan(train_file, test_file):
         sum_num = sum([1 for data in dataset if data[i] == attr and reduce(operator.__and__, [True if data[p_i] == p_values[attr_i] else False for (attr_i, p_i) in enumerate(parents)])])
         res = float(sum_num + 1) / (sum([1 for data in dataset if reduce(operator.__and__, [True if data[p_i] == p_values[attr_i] else False for (attr_i, p_i) in enumerate(parents)])]) + len(test_value_list[i]))
         return res
-    #
-    # def calculate_p():
-    #     count_dict = {}
-    #     for data in dataset:
-    #
-    #     for v in value_list[y_index]:
-    #
+
+    def calculate_p():
+        count_dict = {}
+        count = 0
+        for data in dataset:
+            count += 1
+            if data[y_index] not in count_dict:
+                count_dict[data[y_index]] = 1
+            else:
+                count_dict[data[y_index]] += 1
+        P = {}
+        for (value, c) in count_dict.items():
+            P[value] = float(c + 1) / (count + len(value_list[y_index]))
+        return P
+
+    P = calculate_p()
 
     test_attribute_list, test_value_list, test_dataset = parse_file(test_file)
     for test_data in test_dataset:
-
-        for i in edges_new.keys():
-            p_values = []
-            print ("i is %d, attr name is %s, value is %s " % (i, test_value_list[i], test_data[i]))
-            for p in edges_new[i]:
-                print(test_value_list[p])
-                print(str(p) + " = " + test_data[p])
-                p_values.append(test_data[p])
-
-            print "%.18f" % compute_multi_cond_p(i, test_value_list[i], edges_new[i], p_values)
-        print("====================")
+        # print(test_data)
+        p_sum = 0
+        max_p = 0
+        res_class = ""
+        for y_value in value_list[y_index]:
+            #print("y_value is %s, P[y_value] is %.12f" % (y_value, P[y_value]))
+            num = P[y_value]
+            for i in edges_new.keys():
+                #print("====calculate %d-%s=%s under list %s =======" % (i, attribute_list[i], test_data[i], value_list[i]))
+                p_values = []
+                for p in edges_new[i]:
+                    if (p == y_index):
+                        p_values.append(y_value)
+                    else:
+                        p_values.append(test_data[p])
+                    #print("%s" % p_values)
+                multi_cond_p = compute_multi_cond_p(i, test_data[i], edges_new[i], p_values)
+                #print "%.18f" % multi_cond_p
+                num *= multi_cond_p
+                #print "num is %.18f" % num
+            # print ("num is %.12f" % num)
+            if num > max_p:
+                max_p = num
+                res_class = y_value
+            p_sum += num
+            # print("====================")
+        # print("max_p is %.12f, p_sum is %.12f" % (max_p, p_sum))
+        predict_p = float(max_p) / p_sum
+        print("origin_class: %s | %s | p:%.12f" % (test_data[y_index], res_class, predict_p))
 
     return 0
 
