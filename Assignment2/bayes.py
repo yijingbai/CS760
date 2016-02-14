@@ -86,7 +86,10 @@ def tan(train_file, test_file):
             edges_new[k] = []
         edges_new[k].append(y_index)
 
-    print edges_new
+    for i in xrange(0, len(attribute_list) - 1):
+        print(attribute_list[i] + " " + " ".join([attribute_list[j] for j in edges_new[i]]))
+
+    print("")
 
     def compute_multi_cond_p(i, attr, parents, p_values):
         sum_num = sum([1 for data in dataset if data[i] == attr and reduce(operator.__and__, [True if data[p_i] == p_values[attr_i] else False for (attr_i, p_i) in enumerate(parents)])])
@@ -109,6 +112,7 @@ def tan(train_file, test_file):
 
     P = calculate_p()
 
+    right_count = 0
     test_attribute_list, test_value_list, test_dataset = parse_file(test_file)
     for test_data in test_dataset:
         # print(test_data)
@@ -116,43 +120,45 @@ def tan(train_file, test_file):
         max_p = 0
         res_class = ""
         for y_value in value_list[y_index]:
-            #print("y_value is %s, P[y_value] is %.12f" % (y_value, P[y_value]))
             num = P[y_value]
             for i in edges_new.keys():
-                #print("====calculate %d-%s=%s under list %s =======" % (i, attribute_list[i], test_data[i], value_list[i]))
                 p_values = []
                 for p in edges_new[i]:
                     if (p == y_index):
                         p_values.append(y_value)
                     else:
                         p_values.append(test_data[p])
-                    #print("%s" % p_values)
                 multi_cond_p = compute_multi_cond_p(i, test_data[i], edges_new[i], p_values)
-                #print "%.18f" % multi_cond_p
                 num *= multi_cond_p
-                #print "num is %.18f" % num
-            # print ("num is %.12f" % num)
             if num > max_p:
                 max_p = num
                 res_class = y_value
             p_sum += num
-            # print("====================")
-        # print("max_p is %.12f, p_sum is %.12f" % (max_p, p_sum))
         predict_p = float(max_p) / p_sum
-        print("origin_class: %s | %s | p:%.12f" % (test_data[y_index], res_class, predict_p))
+        if res_class == test_data[y_index]:
+            right_count += 1
+        print("%s %s %.12g" % (res_class, test_data[y_index], predict_p))
 
+    print("")
+    print(right_count)
+    print("")
     return 0
 
 
 def naive_bayes(train_file, test_file):
     """naive_bayes."""
-    is_data_line = False
     P = {}
 
     attribute_list, value_list, dataset = parse_file(train_file)
 
-    # estimate P(Y = y)
     class_index = len(attribute_list) - 1
+    for (i, attr) in enumerate(attribute_list):
+        if i < class_index:
+            print("%s %s" % (attr, attribute_list[class_index]))
+    print("")
+
+    # estimate P(Y = y)
+
     counts = {}
     for v in value_list[class_index]:
         counts[v] = 0
@@ -199,7 +205,7 @@ def naive_bayes(train_file, test_file):
     # classification
     res = parse_file(test_file)
     test_data_set = res[2]
-
+    right_count = 0
     for data in test_data_set:
         max_possbility = 0.0
         dom = 0.0
@@ -216,9 +222,12 @@ def naive_bayes(train_file, test_file):
                 predict = y
 
             dom += num
-
         prob = (max_possbility) / (dom)
-        print(predict + " " + data[class_index] + " %.16f" % Decimal(prob))
+        if data[class_index] == predict:
+            right_count += 1
+        print(predict + " " + data[class_index] + " %.12g" % Decimal(prob))
+
+    print("\n%d\n" % right_count)
     return 0
 
 
