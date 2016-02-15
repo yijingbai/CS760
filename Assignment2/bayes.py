@@ -1,7 +1,6 @@
 """The sys module."""
 import sys
 import re
-from decimal import Decimal
 import math
 import operator
 
@@ -225,7 +224,7 @@ def naive_bayes(train_file, test_file):
         prob = (max_possbility) / (dom)
         if data[class_index] == predict:
             right_count += 1
-        print(predict + " " + data[class_index] + " %.12g" % Decimal(prob))
+        print(predict + " " + data[class_index] + " %.12g" % prob)
 
     print("\n%d\n" % right_count)
     return 0
